@@ -1,4 +1,4 @@
-# Reviewer information for Paperline 1.3.0
+# Reviewer information for Paperline 1.4.0
 
 ## Single purpose
 
@@ -39,4 +39,4 @@ Authenticated Moodle support is an optional integration using the user's existin
 
 ## Package
 
-Upload `release/paperline-1.3.0-chrome-web-store.zip`, which has `manifest.json` at the ZIP root. The ordinary `paperline-1.3.0.zip` includes a `dist/` parent folder and is intended for manual unpacked installation only.
+Upload `release/paperline-1.4.0-chrome-web-store.zip`, which has `manifest.json` at the ZIP root. The ordinary `paperline-1.4.0.zip` includes a `dist/` parent folder and is intended for manual unpacked installation only.

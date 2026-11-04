@@ -2,7 +2,7 @@ import { useEffect, useRef, useState } from 'react';
 import { GripHorizontal } from 'lucide-react';
 import type { Annotation, Point, Tool } from './model';
 import { clamp, makeAnnotation } from './model';
-import { textLayout, type PageInfo } from './pdf';
+import { pdfjs, textLayout, type PageInfo } from './pdf';
 
 type Props = {
   info: PageInfo; index: number; scale: number; tool: Tool;
@@ -18,6 +18,7 @@ type Props = {
 export function Page({ info, index, scale, tool, annotations, selected, editing, defaults, select, edit, commit, onActive, onTyping }: Props) {
   const root = useRef<HTMLDivElement>(null);
   const canvas = useRef<HTMLCanvasElement>(null);
+  const textLayer = useRef<HTMLDivElement>(null);
   const [visible, setVisible] = useState(false);
   const [preview, setPreview] = useState<Annotation | null>(null);
   const gesture = useRef<{ start: Point; points: Point[] } | null>(null);
@@ -39,6 +40,19 @@ export function Page({ info, index, scale, tool, annotations, selected, editing,
     render.promise.catch(error => { if (error.name !== 'RenderingCancelledException') console.error(error); });
     return () => { render.cancel(); };
   }, [info, visible, scale]);
+  useEffect(() => {
+    if (!visible || !textLayer.current) return;
+    const container = textLayer.current;
+    container.replaceChildren();
+    container.style.setProperty('--total-scale-factor', String(scale * info.page.userUnit));
+    const layer = new pdfjs.TextLayer({
+      textContentSource: info.page.streamTextContent(),
+      container,
+      viewport: info.page.getViewport({ scale }),
+    });
+    layer.render().catch(error => { if (error.name !== 'AbortException') console.error(error); });
+    return () => { layer.cancel(); container.replaceChildren(); };
+  }, [info, visible, scale]);
 
   function point(e: React.PointerEvent): Point {
     const rect = root.current!.getBoundingClientRect();
@@ -47,6 +61,9 @@ export function Page({ info, index, scale, tool, annotations, selected, editing,
   function pointerDown(e: React.PointerEvent<HTMLDivElement>) {
     if (e.button !== 0 || (e.target as Element).closest('.annotation')) return;
     onActive(index); edit(null); select(null);
+    // Existing document text always uses native browser selection, regardless
+    // of the active editing tool. Blank page space still accepts edits.
+    if ((e.target as Element).closest('.pdf-text-layer span')) return;
     const p = point(e);
     if (tool === 'text') {
       e.preventDefault();
@@ -55,6 +72,7 @@ export function Page({ info, index, scale, tool, annotations, selected, editing,
       commit(prev => [...prev, a]); select(a.id); edit(a.id); return;
     }
     if (tool === 'select') return;
+    e.preventDefault();
     root.current!.setPointerCapture(e.pointerId);
     gesture.current = { start: p, points: [p] };
   }
@@ -79,6 +97,7 @@ export function Page({ info, index, scale, tool, annotations, selected, editing,
   return <section className="page-section" aria-label={`Page ${index + 1}`} id={`page-${index}`}>
     <div ref={root} className={`pdf-page tool-${tool}`} style={{ width: info.width * scale, height: info.height * scale }} onPointerDown={pointerDown} onPointerMove={pointerMove} onPointerUp={pointerUp} onPointerCancel={() => { gesture.current = null; setPreview(null); }}>
       <canvas ref={canvas} className="pdf-canvas" aria-label={`PDF page ${index + 1}`} />
+      <div ref={textLayer} className="pdf-text-layer" />
       <div className="annotation-layer" style={{ width: info.width, height: info.height, transform: `scale(${scale})` }}>
         {annotations.map(a => <AnnotationBox key={a.id} a={a} selected={selected === a.id} editing={editing === a.id} pageWidth={info.width} pageHeight={info.height} scale={scale} select={select} edit={edit} commit={commit} onTyping={onTyping} />)}
         {preview && <div style={{ position: 'absolute', left: preview.x, top: preview.y, width: preview.width, height: preview.height }}><AnnotationShape a={preview} /></div>}

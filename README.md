@@ -1,85 +1,125 @@
-# Paperline
+<div align="center">
+  <img src="public/icons/icon-128.png" width="80" height="80" alt="paperline icon">
 
-Source repository: [dk-e/paperline](https://github.com/dk-e/paperline) (private). Chrome Web Store publication is not enabled.
+  <h1>paperline</h1>
 
-A simple PDF viewer and editor for Chrome. One compact toolbar, a charcoal theme with lavender accents, and text boxes, highlights, and pen marks when you need them.
+  <p>A quiet home for your PDFs.<br>Read, copy text, add notes, and save—all in your browser.</p>
 
-## Install in Chrome
+  <p>
+    <a href="https://github.com/dk-e/paperline/releases/latest"><strong>Download paperline</strong></a>
+    · <a href="#install">Install</a>
+    · <a href="#use-it">How it works</a>
+    · <a href="PRIVACY.md">Privacy</a>
+  </p>
 
-The extension is already built. No terminal commands are needed to use it.
+  <p>
+    <a href="https://github.com/dk-e/paperline/actions/workflows/ci.yml"><img src="https://github.com/dk-e/paperline/actions/workflows/ci.yml/badge.svg" alt="Build and test"></a>
+    <a href="https://github.com/dk-e/paperline/releases/latest"><img src="https://img.shields.io/github/v/release/dk-e/paperline?color=8d73d7" alt="Latest release"></a>
+    <img src="https://img.shields.io/badge/Chrome-128%2B-8d73d7" alt="Chrome 128 or later">
+  </p>
+</div>
 
-1. Open `chrome://extensions` in Chrome.
-2. Turn on **Developer mode** in the top-right corner.
-3. Click **Load unpacked**, then choose **`/Users/dan/Code/paperline/dist`**.
-4. Open Chrome's extensions menu (the puzzle piece), and pin **Paperline**.
+![paperline showing a PDF with its compact toolbar](screenshots/paperline-viewer.png)
 
-Click the Paperline icon to open the editor. Choose **Open PDF**, drag a PDF into the tab, or use **Try a sample PDF** to take a look around.
+paperline is a PDF viewer and annotation editor for Chrome. Your document gets the space, with a compact toolbar and formatting controls that appear when you need them. No account, analytics, or cloud conversion service.
 
-The portable build is in `release/paperline-1.3.0.zip`. To use it on another computer, unzip it and load the extracted `dist` folder in the same way. Keep the folder in place after installing. Chrome 128 or later is required.
+## What you can do
 
-If Paperline is already installed, click its **Reload** button at `chrome://extensions` to use this update. On its **Details** page, ensure **Allow access to file URLs** is enabled so it can open downloaded and local PDFs. Chrome may also ask you to accept the new site-access and download permissions.
+- **Read and copy naturally.** Drag across existing PDF text to select it, then copy with ⌘C / Ctrl+C or the right-click menu. No tool switch required.
+- **Add a finishing touch.** Create text boxes, highlight areas, draw, and adjust fonts, colours, and alignment.
+- **Keep your place.** PDF links open in a new editor tab, leaving the source page available. Signed-in Moodle PDF links keep their login context.
+- **Save your work.** Export a separate annotated PDF. Reopen it in paperline to keep editing your annotations.
+- **Pick up where you left off.** A local recovery draft remembers your latest document and edits.
+- **Stay on your device.** Rendering, editing, and export happen locally. Online PDFs are requested from their original website.
 
-**Check which copy Chrome is loading.** Reload only updates the folder originally selected in Chrome. If you installed an older ZIP from Downloads, reloading it will keep that old code. Disable the old copy and use **Load unpacked → `/Users/dan/Code/paperline/dist`**, or extract the latest ZIP and load its folder. Keep only one Paperline copy enabled. Open **… → Paperline settings** and check that it says **Paperline 1.3.0**.
+## Install
+
+**Chrome 128 or later.** paperline is distributed through GitHub Releases; it is not currently published on the Chrome Web Store.
+
+1. Download **[paperline-1.4.0.zip](https://github.com/dk-e/paperline/releases/download/v1.4.0/paperline-1.4.0.zip)** from the [latest release](https://github.com/dk-e/paperline/releases/latest).
+2. Unzip it and keep the extracted folder somewhere permanent.
+3. Open `chrome://extensions` and turn on **Developer mode**.
+4. Click **Load unpacked** and select the extracted **`dist`** folder.
+5. Pin **paperline** from Chrome's extensions menu.
+
+Click the toolbar icon, then choose **Open PDF**, drop in a file, or try the bundled sample.
+
+For downloaded and local PDFs, enable **Allow access to file URLs** on paperline's extension details page. Allow site access for websites whose PDFs you want to open automatically.
+
+### Updating an existing installation
+
+Replace the existing installation's `dist` folder with the new one, then click **Reload** at `chrome://extensions` and reopen your PDF. Keep the same folder path to preserve the extension's identity and local draft.
+
+Check **… → Paperline settings** for **1.4.0**. Reloading an old extracted folder keeps running its old code; make sure you replace the folder Chrome actually loads. The extension name and browser tab title are simply **paperline**.
 
 ## Use it
 
-The PDF opens front and centre. Page thumbnails start hidden; toggle them using the page navigator icon beside the filename. Enter a page number or choose a zoom level in the top bar. Formatting appears in a small floating palette only while adding or selecting an edit. Close the palette or press Escape to return to reading. The **…** menu contains keyboard shortcuts and settings.
+Drag across document text to select and copy it. Editing tools still allow text selection over existing PDF text; start a new text box or drawing in a blank area.
 
-- **Text (`T`)**: click anywhere on a page and type. Double-click a box later to edit it again.
-- **Move**: select a box and drag its blue handle. Arrow keys nudge it 1 PDF point; Shift + arrows move it 10 points.
-- **Resize**: pull the lower-right corner to change the text box's width. Its height grows to fit the text.
-- **Format**: change size (6–96 pt), bold, italic, alignment, and colour in the contextual palette.
-- **Highlight (`H`)**: drag a rectangle across the area you want to mark.
-- **Draw (`D`)**: draw directly on a page; change colour and stroke width in the palette.
-- **Select (`V`)**: select, move, duplicate, or delete a mark. Press Escape to finish editing or deselect.
-- **Undo / redo**: use the toolbar or Cmd/Ctrl + Z and Cmd/Ctrl + Shift + Z.
-- **Save PDF (Cmd/Ctrl + S)**: download a separate `-edited.pdf`. The source file is preserved.
+| Action | How |
+| --- | --- |
+| Add text | Press **T**, click a blank area, and type. Double-click a text box to edit it again. |
+| Move or resize | Drag an annotation or its handle; use the lower-right corner to resize. |
+| Format | Select a text box to change size, bold, italic, alignment, or colour. |
+| Highlight | Press **H**, then drag a rectangle over the area you want to mark. |
+| Draw | Press **D** and start drawing in a blank area. |
+| Select annotations | Press **V**. Arrow keys nudge a selected mark; Shift + arrows move it further. |
+| Undo / redo | **⌘/Ctrl + Z** / **⌘/Ctrl + Shift + Z** |
+| Save PDF | **⌘/Ctrl + S** downloads a separate `-edited.pdf`. |
+| Finish editing | Press **Esc**. |
 
-The saved file contains real PDF annotations with embedded appearance streams and fonts. They are visible in other PDF readers. Reopening the file in Paperline restores its text boxes, highlights, and drawings as editable objects. Marks made by other apps are preserved as part of the source PDF; Paperline only edits its own annotations.
+Toggle page thumbnails beside the filename. Use the top bar to jump to a page or change zoom. The **…** menu contains keyboard shortcuts and settings.
 
-## Automatic PDF opening
+<details>
+<summary><strong>See the editing workspace</strong></summary>
 
-PDF links open in Paperline automatically. Direct `.pdf` URLs are handled before the server responds; MIME detection handles PDF addresses without that suffix. Embedded PDFs also open in Paperline within their frame. A separate navigation fallback catches PDF URLs when Chrome's built-in viewer would otherwise open them. Requests created by submitting a form with POST are not redirected: download their PDF result instead.
+![Adding a text note with paperline's formatting palette](screenshots/paperline-editing.png)
 
-On authenticated sites such as Moodle, same-site PDF clicks are fetched in the site's own signed-in context, preserving login cookies and the request referrer. Moodle `/mod/resource/view.php` links are followed through redirects or PDF embeds before handing the bytes to the editor. This avoids trying to fetch the protected PDF again from the extension's origin. Ordinary links keep the current tab; links with `target="_blank"` open a new tab. Transfer data stays in short-lived local extension storage and is removed when consumed. The authenticated transfer path supports PDFs up to 128 MB; larger files can be opened manually.
+</details>
 
-Completed PDF downloads open in a new Paperline tab, using the actual downloaded file when local-file access is enabled. The download is kept. This also works for PDFs generated by a website from a blob, without fetching the original URL again. Paperline's own **Save PDF** downloads are excluded, and duplicate download events do not open extra tabs.
+### Automatic PDF opening
 
-Chrome's **Allow access to file URLs** setting enables direct reading of downloaded files and `file://` PDF links. If it is off, ordinary HTTP downloads are reopened from their source when possible. Blob downloads, one-use links, and protected sources may still need access to the downloaded file; the editor explains how to enable it and offers **Open PDF** as an immediate alternative. After enabling access, return to the editor and click **Try again**.
+PDF links open in paperline automatically. Direct `.pdf` URLs, PDF response headers, local files, embedded PDFs, and completed PDF downloads are supported. Linked PDFs open in a new tab; embedded PDFs stay within their frame. Automatic links and downloads have separate switches in settings.
 
-Use **… → Paperline settings** in the editor header (or Chrome's **Extension options**) to turn automatic PDF links and automatic downloads on or off independently. Both start enabled, and your choices survive restarts and updates. Site access must be allowed for the sites whose PDFs you want to open automatically.
+On signed-in websites such as Moodle, same-site PDF clicks are fetched in the website's own context, preserving login cookies and the original referrer. Moodle resource redirects and PDF embeds are resolved before transferring the document locally to the editor. The authenticated transfer path supports PDFs up to 128 MB; larger files can be opened manually.
 
-If links still open in Chrome's viewer, check the version above, click **Enable & repair automatic opening** in settings, accept Chrome's access prompt, and refresh the Moodle course page before clicking its PDF link again. The settings page reports missing site access or setup errors. This update also installs the link handler into pages already open where Chrome permits it; refreshing guarantees that the latest handler is active.
+Completed PDF downloads are kept. With local-file access enabled, paperline reads the downloaded file directly. Without it, HTTP downloads may be reopened from their source; protected or generated files may require local-file access or the file picker. Saving your own edited PDF does not open another tab.
 
-You can still open files manually, use the toolbar icon, or right-click a PDF link and choose **Edit PDF in Paperline**. Protected sites can block direct fetching; downloading their PDF first allows Paperline to open the local bytes. This controls PDFs opened in Chrome; it does not change macOS's default app for PDFs opened in Finder.
+If automatic opening fails, check site access and use **… → Paperline settings → Enable & repair automatic opening**, then refresh the source page. You can also open a PDF manually or use **Edit PDF in Paperline** from a link's context menu. Form submissions using POST are not redirected; download their PDF result instead.
 
-## Local drafts and privacy
+## Privacy
 
-Documents are rendered and exported entirely on your device. No accounts, analytics, cloud storage, or external scripts are used. Online PDFs are fetched from their original site when opened; downloaded PDFs are read locally or, when file access is off, fetched from their source. Site permissions enable automatic PDF detection and fetching. Navigation and request metadata are used only to route PDF documents and avoid replaying POST requests; these are not stored as browsing history. The downloads permission detects completed PDFs; other downloads are not opened or modified.
+Your PDFs and edits stay on your device. paperline has no account system, ads, analytics, or developer-operated document server. JavaScript, fonts, PDF decoders, and workers are bundled with the extension.
 
-The latest open document and its edits are saved in Chrome's local IndexedDB. Typing is committed after a short pause, and draft writes are debounced. On returning to the editor, click **Continue** to restore your latest draft. Opening another document replaces this single recovery slot. Use **Save PDF** to keep permanent copies of multiple documents. Delete the local draft using the × beside it on the start screen. Removing the extension also removes its drafts.
+Online documents are fetched from their original website; Chrome may include your existing site cookies to load protected PDFs. A single recovery draft is stored locally in IndexedDB. You can delete it on the start screen. Removing the extension removes its local data; exported files remain yours.
+
+Read the [privacy policy](PRIVACY.md) for storage, permissions, and network-request details.
 
 ## Scope
 
-Paperline adds text and marks over the existing PDF. It does not rewrite the original page text, perform OCR, redact content, edit existing form fields, or unlock password-protected files. Adding text over an existing word does not remove that word.
+paperline adds annotations over existing PDF content. It does not rewrite original text, perform OCR, redact content, edit existing form fields, or unlock password-protected files. Scanned pages need an existing text layer for text selection and copying.
 
-Noto Sans is bundled and embedded for consistent results. Latin, Greek, and Cyrillic text and common symbols are supported. Unsupported characters, including many emoji and CJK characters, produce a clear error before export and leave your work intact. Digitally signed PDFs should be edited only on an unsigned copy; changing a PDF changes the signed document.
+Saved annotations contain appearance streams and embedded fonts so other PDF readers can display them. paperline's own annotations remain editable when reopened. Noto Sans supports Latin, Greek, Cyrillic, and common symbols; unsupported characters produce an export error without discarding your work. Edit an unsigned copy of digitally signed documents.
 
 ## Development
 
-Requires Node.js 22+, npm, and Python 3 for release ZIP packaging. All runtime code, fonts, PDF.js character maps, image decoders, and workers are packaged with the extension.
+Requires **Node.js 22+**, npm, and Python 3.
 
 ```sh
-cd ~/Code/paperline
+git clone https://github.com/dk-e/paperline.git
+cd paperline
 npm ci
 npm run build
 ```
 
-Reload the extension at `chrome://extensions` after rebuilding. `npm run dev` is available for ordinary UI development; Chrome-only permissions and browser integration require the actual extension build.
+Load `dist/` as an unpacked extension. The build also creates:
 
-The included sample, icons, and rotation test fixture are checked in. Regenerate them with `npm run assets` if needed. `npm run build` creates the loadable `dist/` folder and the ZIP in `release/`. Packaging uses Python 3's standard ZIP library and works on macOS and Linux. It creates both the manual-install ZIP and a separate store-ready ZIP; the store package has not been submitted or published.
+- `release/paperline-1.4.0.zip` — manual installation, with a `dist/` folder.
+- `release/paperline-1.4.0-chrome-web-store.zip` — store package, with the manifest at the ZIP root.
 
-## Verification
+`npm run dev` runs the editor UI locally. Chrome permissions and automatic PDF handling require the actual extension build. `npm run assets` regenerates the sample PDF, icons, and rotation fixture.
+
+### Tests
 
 ```sh
 npx playwright install chromium
@@ -87,6 +127,12 @@ npm run build
 npm test
 ```
 
-The end-to-end suite loads the built extension in a real Chromium extension context and exercises editing, formatting, moving, resizing, undo/redo, duplication, deletion, highlight/pen tools, local recovery, PDF save/reopen, malformed files, unsupported glyphs, and native annotation placement on cropped pages rotated 0°, 90°, 180°, and 270°. It also serves real HTTP responses to verify redirects, query-string preservation, attachment/blob downloads, local files, settings, and export-loop prevention. Moodle-style fixtures require SameSite/HttpOnly cookies and the original course-page referrer, and exercise resource redirects, embedded resource pages, new tabs, and multi-chunk transfer. Missing redirect rules, site-access guidance, downloads without local-file access, repair, and full browser restarts are covered. The real MMU Moodle URL requires the user's session and is not accessed by the fixture tests. Exported PDFs are independently reopened and rasterized to check placement. Screenshots and generated PDFs are written under `test-results/artifacts/`.
+The suite loads the extension in real Chromium and checks native text selection and clipboard paste, zoom and high-DPI alignment, cropped and rotated pages, editing and export, draft recovery, settings, and automatic PDF handling. Moodle fixtures exercise signed-in cookies, referrers, redirects, embeds, and multi-chunk transfer without accessing a real university account. A release test extracts the downloadable ZIP and checks installation and copying from that package.
 
-Built with [PDF.js](https://mozilla.github.io/pdf.js/), [pdf-lib](https://pdf-lib.js.org/), React, and the [Chrome Manifest V3 APIs](https://developer.chrome.com/docs/extensions/develop). Dependency and font notices ship in the extension's `THIRD-PARTY-LICENSES.txt` and `fonts/OFL.txt`.
+GitHub Actions builds and tests each push to `main` and each pull request, and uploads release packages as workflow artifacts.
+
+## Built with
+
+[PDF.js](https://mozilla.github.io/pdf.js/) · [pdf-lib](https://pdf-lib.js.org/) · [React](https://react.dev/) · [Vite](https://vite.dev/) · [Lucide](https://lucide.dev/) · Noto Sans
+
+Third-party notices ship in the extension's `THIRD-PARTY-LICENSES.txt` and font licence files.

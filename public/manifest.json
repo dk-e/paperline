@@ -1,7 +1,7 @@
 {
   "manifest_version": 3,
-  "name": "Paperline — PDF text editor",
-  "version": "1.3.0",
+  "name": "paperline",
+  "version": "1.4.0",
   "description": "A calm, precise PDF workspace. Add and edit text boxes, highlight, draw, and save. Everything stays on your device.",
   "minimum_chrome_version": "128",
   "permissions": ["activeTab", "contextMenus", "storage", "downloads", "declarativeNetRequestWithHostAccess", "webNavigation", "webRequest", "scripting"],

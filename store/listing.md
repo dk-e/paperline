@@ -2,8 +2,8 @@
 
 Draft only. Store publication was cancelled before developer registration; nothing has been uploaded or submitted.
 
-- **Title:** Paperline — PDF text editor
-- **Version:** 1.3.0
+- **Title:** paperline
+- **Version:** 1.4.0
 - **Category:** Productivity
 - **Language:** English
 - **Visibility:** Public and searchable

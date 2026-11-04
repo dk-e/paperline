@@ -14,7 +14,7 @@
     try { name = decodeURIComponent(name); } catch {}
     return name.split(/[\\/]/).pop();
   }
-  async function handoff(url, newTab) {
+  async function handoff(url) {
     // Same-origin fetch preserves SameSite/HttpOnly login cookies and Referer,
     // unlike fetching an authenticated Moodle resource from an extension page.
     let response = await fetch(url.href, { credentials: 'include' });
@@ -32,7 +32,7 @@
     if (!response.ok) throw Error('PDF request failed');
     const bytes = new Uint8Array(await response.arrayBuffer());
     if (bytes.length > 128 * 1024 * 1024 || !new TextDecoder().decode(bytes.subarray(0, 1024)).includes('%PDF-')) throw Error('Not a PDF response');
-    const started = await chrome.runtime.sendMessage({ type: 'paperline:handoff-start', url: url.href, name: filename(new URL(response.url || url.href), response), newTab });
+    const started = await chrome.runtime.sendMessage({ type: 'paperline:handoff-start', url: url.href, name: filename(new URL(response.url || url.href), response), newTab: true });
     if (!started?.ok) throw Error(started?.error || 'Cannot prepare PDF');
     for (let offset = 0; offset < bytes.length; offset += 128 * 1024) {
       const chunk = bytes.subarray(offset, offset + 128 * 1024);
@@ -43,7 +43,6 @@
     }
     const result = await chrome.runtime.sendMessage({ type: 'paperline:handoff-finish', id: started.id });
     if (!result?.ok) throw Error(result?.error || 'Cannot open PDF');
-    if (!newTab) location.assign(result.url);
   }
   document.addEventListener('click', event => {
     if (!enabled || event.defaultPrevented || event.button !== 0 || event.altKey) return;
@@ -51,13 +50,19 @@
     if (!anchor || anchor.hasAttribute('download')) return;
     let url;
     try { url = new URL(anchor.href); } catch { return; }
-    if (!['http:', 'https:'].includes(url.protocol) || url.origin !== location.origin || !(isPdfLink(url) || isMoodleResource(url))) return;
+    if (!['http:', 'https:'].includes(url.protocol) || !(isPdfLink(url) || isMoodleResource(url))) return;
     if (anchor.target && !['_self', '_blank', '_top', '_parent'].includes(anchor.target)) return;
+    if (url.origin !== location.origin) {
+      // Let the browser navigate cross-origin links in a new tab; fetching them
+      // here may be blocked by CORS or require the destination site's cookies.
+      anchor.target = '_blank';
+      anchor.relList.add('noopener');
+      return;
+    }
     event.preventDefault(); event.stopImmediatePropagation();
-    const newTab = anchor.target === '_blank' || event.ctrlKey || event.metaKey || event.shiftKey;
-    void handoff(url, newTab).catch(() => {
+    void handoff(url).catch(() => {
       // Login redirects and non-PDF responses retain their normal browser flow.
-      if (newTab) window.open(url.href, '_blank', 'noopener'); else location.assign(url.href);
+      window.open(url.href, '_blank', 'noopener');
     });
   }, true);
   // Chrome can sniff a PDF even when the server omits its Content-Type header.

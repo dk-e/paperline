@@ -41,7 +41,7 @@ test.beforeAll(async () => {
       res.setHeader('Content-Type', 'text/html'); res.end('<iframe src="/report.pdf" width="900" height="700"></iframe>');
     } else if (url.pathname === '/') {
       res.setHeader('Content-Type', 'text/html');
-      res.end(`<title>Download test</title><a href="/report.pdf">PDF link</a><a href="/binary" download="downloaded.pdf">Download PDF</a><a href="/note.txt" download>Download text</a><button id="blob">Download a generated PDF</button><script>document.querySelector('#blob').onclick=async()=>{const b=await(await fetch('/blob-content')).blob();const a=document.createElement('a');a.href=URL.createObjectURL(b);a.download='generated.pdf';a.click()};</script>`);
+      res.end(`<title>Download test</title><a href="/report.pdf">PDF link</a><a href="${base.replace('127.0.0.1', 'localhost')}/report.pdf">External PDF link</a><a href="/binary" download="downloaded.pdf">Download PDF</a><a href="/note.txt" download>Download text</a><button id="blob">Download a generated PDF</button><script>document.querySelector('#blob').onclick=async()=>{const b=await(await fetch('/blob-content')).blob();const a=document.createElement('a');a.href=URL.createObjectURL(b);a.download='generated.pdf';a.click()};</script>`);
     } else if (url.pathname === '/note.txt') { res.setHeader('Content-Type', 'text/plain'); res.end('Ordinary download'); }
     else {
       res.setHeader('Content-Type', url.pathname === '/binary' ? 'application/octet-stream' : url.pathname === '/wrong.pdf' ? 'text/plain' : 'application/pdf');
@@ -75,14 +75,26 @@ async function assertLoaded(page: import('@playwright/test').Page) {
   expect(page.url()).toBe(editorUrl);
 }
 
-test('automatically opens inline PDF links in the same tab, with no fetch loop', async () => {
+test('automatically opens inline PDF links in a new tab, with no fetch loop', async () => {
   const page = await context.newPage();
   const start = requests.length;
   await page.goto(base);
+  const opened = context.waitForEvent('page');
   await page.getByRole('link', { name: 'PDF link', exact: true }).click();
-  await assertLoaded(page);
+  const editor = await opened; await assertLoaded(editor);
+  expect(page.url()).toBe(base + '/');
+  await editor.close();
   expect(requests.slice(start).filter(r => r === '/report.pdf')).toHaveLength(1);
   await page.close();
+});
+
+test('opens cross-origin PDF links in a new tab without replacing the source page', async () => {
+  const page = await context.newPage(); await page.goto(base);
+  const opened = context.waitForEvent('page');
+  await page.getByRole('link', { name: 'External PDF link', exact: true }).click();
+  const editor = await opened; await assertLoaded(editor);
+  expect(page.url()).toBe(base + '/');
+  await editor.close(); await page.close();
 });
 
 test('recognizes MIME-only and attachment PDFs and preserves their full query strings', async () => {
@@ -187,14 +199,38 @@ test('explains missing file access with a direct path to Chrome settings', async
 test('opens a signed-in Moodle link using its original cookies and referrer', async () => {
   const page = await context.newPage(); await page.goto(base + '/course');
   const start = authRequests.length;
+  const opened = context.waitForEvent('page');
   await page.getByRole('link', { name: 'Moodle lab PDF', exact: true }).click();
-  await assertLoaded(page);
-  await expect(page.locator('.document-name')).toContainText('Lab 5 - Subnets and VLANs.pdf');
+  const editor = await opened; await assertLoaded(editor);
+  expect(page.url()).toBe(base + '/course');
+  await expect(editor.locator('.document-name')).toContainText('Lab 5 - Subnets and VLANs.pdf');
   expect(authRequests.slice(start)).toHaveLength(1);
   expect(authRequests.at(-1)!.cookie).toContain('moodle-session=fixture');
   expect(authRequests.at(-1)!.referer).toBe(base + '/course');
   expect(authRequests.at(-1)!.site).toBe('same-origin');
-  await page.close();
+  await editor.close(); await page.close();
+});
+
+test('copies visible PDF text immediately after opening a Moodle link in a new tab', async () => {
+  const page = await context.newPage(); await page.goto(base + '/course');
+  const opened = context.waitForEvent('page');
+  await page.getByRole('link', { name: 'Moodle lab PDF', exact: true }).click();
+  const editor = await opened; await assertLoaded(editor);
+  expect(page.url()).toBe(base + '/course');
+  // No toolbar interaction: double-click a word straight from the PDF.
+  const heading = editor.locator('.pdf-text-layer span').filter({ hasText: /^Good things start$/ });
+  await expect(heading).toHaveCount(1);
+  await heading.dblclick({ position: { x: 20, y: 15 } });
+  await expect.poll(() => editor.evaluate(() => getSelection()?.toString())).toBe('Good');
+  await editor.keyboard.press('Control+c');
+  await editor.evaluate(() => {
+    const input = document.createElement('textarea'); input.id = 'paste-check';
+    input.style.cssText = 'position:fixed;top:60px;left:0;z-index:200';
+    document.body.append(input); input.focus();
+  });
+  await editor.keyboard.press('Control+v');
+  await expect(editor.locator('#paste-check')).toHaveValue('Good');
+  await editor.close(); await page.close();
 });
 
 test('preserves authenticated target=_blank links without replacing the course page', async () => {
@@ -229,7 +265,7 @@ test('recovers when declarative redirects are missing instead of staying in Chro
 
 test('shows the installed version and repairs automatic opening from settings', async () => {
   const page = await context.newPage(); await page.goto(editorUrl.replace('index.html', 'options.html'));
-  await expect(page.getByText('Paperline 1.3.0.', { exact: false })).toBeVisible();
+  await expect(page.getByText('Paperline 1.4.0.', { exact: false })).toBeVisible();
   await page.getByRole('switch', { name: /^Open PDF links automatically/ }).uncheck();
   await expect(page.getByText('Automatic PDF links are off', { exact: true })).toBeVisible();
   await page.getByRole('button', { name: 'Enable & repair automatic opening', exact: true }).click();
@@ -242,20 +278,24 @@ test('shows the installed version and repairs automatic opening from settings', 
 test('follows Moodle resource redirects and embedded resource pages in the signed-in context', async () => {
   for (const label of ['Moodle resource redirect', 'Moodle resource embed']) {
     const page = await context.newPage(); await page.goto(base + '/course');
+    const opened = context.waitForEvent('page');
     await page.getByRole('link', { name: label, exact: true }).click();
-    await assertLoaded(page);
-    await expect(page.locator('.document-name')).toContainText('Lab 5 - Subnets and VLANs.pdf');
+    const editor = await opened; await assertLoaded(editor);
+    expect(page.url()).toBe(base + '/course');
+    await expect(editor.locator('.document-name')).toContainText('Lab 5 - Subnets and VLANs.pdf');
     expect(authRequests.at(-1)!.referer).toBe(base + '/course');
-    await page.close();
+    await editor.close(); await page.close();
   }
 });
 
 test('transfers an authenticated PDF across multiple message chunks', async () => {
   const page = await context.newPage(); await page.goto(base + '/course');
+  const opened = context.waitForEvent('page');
   await page.getByRole('link', { name: 'Large Moodle PDF', exact: true }).click();
-  await assertLoaded(page);
-  await expect(page.locator('.document-name')).toContainText('Lab 5 - Subnets and VLANs.pdf');
-  await page.close();
+  const editor = await opened; await assertLoaded(editor);
+  expect(page.url()).toBe(base + '/course');
+  await expect(editor.locator('.document-name')).toContainText('Lab 5 - Subnets and VLANs.pdf');
+  await editor.close(); await page.close();
 });
 
 test('offers a site-access grant instead of silently falling back to Chrome', async () => {
