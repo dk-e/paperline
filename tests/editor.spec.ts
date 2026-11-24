@@ -171,6 +171,7 @@ test('nudges precisely, keeps live typing in the draft, and traps shortcut-modal
 
 test('places exported text correctly on cropped pages at all four rotations', async () => {
   await page.getByTestId('file-input').setInputFiles('tests/fixtures/rotated.pdf');
+  await page.getByRole('button', { name: 'Open without saving', exact: true }).click();
   await expect(page.locator('.pdf-page')).toHaveCount(4);
   await expect(page.locator('.busy-overlay')).toHaveCount(0);
   for (let i = 0; i < 4; i++) await addText(`Rotation ${i * 90}: café £42`, 90, 300, i);
@@ -209,6 +210,7 @@ test('rejects invalid files and reports unsupported glyphs without losing work',
 
 test('keeps the document in focus and reveals navigation and formatting on demand', async () => {
   await page.getByTestId('file-input').setInputFiles('public/sample.pdf');
+  await page.getByRole('button', { name: 'Open without saving', exact: true }).click();
   await expect(page.locator('.busy-overlay')).toHaveCount(0);
   await expect(page.locator('.pages-panel')).toHaveCount(0);
   await expect(page.getByRole('toolbar', { name: 'Text formatting' })).toHaveCount(0);
@@ -248,4 +250,93 @@ test('fits the viewer and contextual controls into a narrow window', async () =>
   await page.keyboard.press('Escape');
   await expect(page.getByRole('toolbar', { name: 'Text formatting' })).toHaveCount(0);
   await page.setViewportSize({ width: 1440, height: 1000 });
+});
+
+
+test('finds PDF text, highlights matches, wraps navigation, and clears results', async () => {
+  await page.getByRole('button', { name: 'Find in PDF', exact: true }).click();
+  const input = page.getByRole('textbox', { name: 'Find in document' });
+  await expect(input).toBeFocused();
+  await input.fill('the');
+  await expect(page.locator('.search-status')).toHaveText(/1 of [1-9]\d*/);
+  await expect(page.locator('.search-hit.active').first()).toBeVisible();
+  await page.screenshot({ path: 'test-results/artifacts/search-desktop.png' });
+  await page.setViewportSize({ width: 390, height: 844 });
+  await expect(input).toBeVisible();
+  expect(await page.evaluate(() => document.documentElement.scrollWidth)).toBe(390);
+  await page.screenshot({ path: 'test-results/artifacts/search-mobile.png' });
+  await page.setViewportSize({ width: 1440, height: 1000 });
+  const initialStatus = await page.locator('.search-status').innerText();
+  await input.press('Shift+Enter');
+  const count = initialStatus.split(' of ')[1];
+  await expect(page.locator('.search-status')).toHaveText(`${count} of ${count}`);
+  await input.press('Enter');
+  await expect(page.locator('.search-status')).toHaveText(initialStatus);
+  await input.fill('no-such-phrase-9382');
+  await expect(page.locator('.search-status')).toHaveText('No matches');
+  await expect(page.getByRole('button', { name: 'Next match', exact: true })).toBeDisabled();
+  await input.fill('[.*');
+  await expect(page.locator('.search-status')).toHaveText('No matches');
+  await input.press('Escape');
+  await expect(page.getByRole('search')).toHaveCount(0);
+  await expect(page.locator('.search-hit')).toHaveCount(0);
+  await expect(page.getByRole('button', { name: 'Find in PDF', exact: true })).toBeFocused();
+});
+
+test('protects unexported edits when switching files and can save before switching', async () => {
+  const box = await addText('Do not lose this note.');
+  await box.dblclick();
+  await page.getByRole('textbox', { name: 'Edit text box' }).fill('Include my latest keystrokes.');
+  await page.getByTestId('file-input').setInputFiles('tests/fixtures/rotated.pdf');
+  await expect(page.getByRole('dialog')).toContainText('Save a copy before switching?');
+  await page.screenshot({ path: 'test-results/artifacts/switch-document.png' });
+  await page.keyboard.press('Escape');
+  await expect(page.getByRole('dialog')).toHaveCount(0);
+  await expect(page.locator('.annotation-text')).toContainText('Include my latest keystrokes.');
+  await page.getByTestId('file-input').setInputFiles('tests/fixtures/rotated.pdf');
+  const downloadEvent = page.waitForEvent('download');
+  await page.getByRole('button', { name: 'Save copy & open', exact: true }).click();
+  const download = await downloadEvent;
+  expect(download.suggestedFilename()).toContain('-edited.pdf');
+  const filePath = path.resolve('test-results/artifacts/saved-before-switch.pdf');
+  await download.saveAs(filePath);
+  const pdf = await PDFDocument.load(await readFile(filePath));
+  const annotation = pdf.context.lookup(pdf.getPage(0).node.Annots()!.get(0)) as PDFDict;
+  expect((annotation.get(PDFName.of('Contents')) as PDFHexString).decodeText()).toBe('Include my latest keystrokes.');
+  await expect(page.locator('.pdf-page')).toHaveCount(4);
+  await expect(page.getByRole('dialog')).toHaveCount(0);
+  await expect(page.locator('.annotation')).toHaveCount(0);
+});
+
+test('protects an edited recovery draft before it is resumed', async () => {
+  await addText('A recovery note.');
+  await expect(page.getByRole('status', { name: 'Draft saved on this device', exact: true })).toBeVisible();
+  await page.reload();
+  await page.getByRole('button', { name: /Try a sample PDF/ }).click();
+  await expect(page.getByRole('dialog')).toBeVisible();
+  await page.getByRole('button', { name: 'Keep editing', exact: true }).click();
+  await expect(page.locator('.draft-card')).toBeVisible();
+  await page.getByRole('button', { name: /Try a sample PDF/ }).click();
+  const downloadEvent = page.waitForEvent('download');
+  await page.getByRole('button', { name: 'Save copy & open', exact: true }).click();
+  const download = await downloadEvent;
+  const filePath = path.resolve('test-results/artifacts/recovered-before-switch.pdf');
+  await download.saveAs(filePath);
+  const pdf = await PDFDocument.load(await readFile(filePath));
+  const annotation = pdf.context.lookup(pdf.getPage(0).node.Annots()!.get(0)) as PDFDict;
+  expect((annotation.get(PDFName.of('Contents')) as PDFHexString).decodeText()).toBe('A recovery note.');
+  await expect(page.locator('.pdf-page')).toHaveCount(2);
+});
+
+test('can undo deleting the recovery draft', async () => {
+  await expect(page.getByRole('status', { name: 'Draft saved on this device', exact: true })).toBeVisible();
+  await page.reload();
+  await expect(page.locator('.draft-card')).toBeVisible();
+  await page.getByRole('button', { name: 'Delete local draft' }).click();
+  await expect(page.locator('.draft-card')).toHaveCount(0);
+  await page.getByRole('button', { name: 'Undo', exact: true }).click();
+  await expect(page.locator('.draft-card')).toBeVisible();
+  await page.reload();
+  await expect(page.locator('.draft-card')).toBeVisible();
+  expect(errors).toEqual([]);
 });

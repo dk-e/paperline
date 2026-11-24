@@ -1,3 +1,4 @@
+import { findText, type SearchMatch } from './search';
 import { useEffect, useRef, useState } from 'react';
 import { GripHorizontal } from 'lucide-react';
 import type { Annotation, Point, Tool } from './model';
@@ -13,12 +14,15 @@ type Props = {
   commit: (change: (prev: Annotation[]) => Annotation[]) => void;
   onActive: (index: number) => void;
   onTyping: (pending: boolean) => void;
+  searchQuery: string; activeMatch?: SearchMatch;
 };
 
-export function Page({ info, index, scale, tool, annotations, selected, editing, defaults, select, edit, commit, onActive, onTyping }: Props) {
+export function Page({ info, index, scale, tool, annotations, selected, editing, defaults, select, edit, commit, onActive, onTyping, searchQuery, activeMatch }: Props) {
   const root = useRef<HTMLDivElement>(null);
   const canvas = useRef<HTMLCanvasElement>(null);
   const textLayer = useRef<HTMLDivElement>(null);
+  const [textReady, setTextReady] = useState(0);
+  const [hits, setHits] = useState<{ x: number; y: number; width: number; height: number; active: boolean }[]>([]);
   const [visible, setVisible] = useState(false);
   const [preview, setPreview] = useState<Annotation | null>(null);
   const gesture = useRef<{ start: Point; points: Point[] } | null>(null);
@@ -50,9 +54,34 @@ export function Page({ info, index, scale, tool, annotations, selected, editing,
       container,
       viewport: info.page.getViewport({ scale }),
     });
-    layer.render().catch(error => { if (error.name !== 'AbortException') console.error(error); });
+    layer.render().then(() => setTextReady(value => value + 1)).catch(error => { if (error.name !== 'AbortException') console.error(error); });
     return () => { layer.cancel(); container.replaceChildren(); };
   }, [info, visible, scale]);
+
+  useEffect(() => {
+    if (!visible || !searchQuery.trim() || !textLayer.current || !root.current) { setHits([]); return; }
+    const spans = Array.from(textLayer.current.querySelectorAll('span:not(.markedContent)')).filter(span => span.textContent);
+    let offset = 0;
+    const parts = spans.map(span => {
+      const start = offset; offset += span.textContent!.length + 1;
+      return { span, start, end: offset - 1 };
+    });
+    const rect = root.current.getBoundingClientRect();
+    const next = findText(spans.map(span => span.textContent).join(' '), searchQuery).flatMap(match => {
+      const start = parts.find(part => part.end > match.start);
+      const end = parts.find(part => part.end >= match.end);
+      if (!start?.span.firstChild || !end?.span.firstChild) return [];
+      const range = window.document.createRange();
+      range.setStart(start.span.firstChild, Math.max(0, match.start - start.start));
+      range.setEnd(end.span.firstChild, match.end - end.start);
+      return Array.from(range.getClientRects()).map(hit => ({ x: (hit.x - rect.x) / scale, y: (hit.y - rect.y) / scale,
+        width: hit.width / scale, height: hit.height / scale, active: match.start === activeMatch?.start }));
+    });
+    setHits(next);
+  }, [searchQuery, activeMatch, textReady, scale, visible]);
+  useEffect(() => {
+    root.current?.querySelector('.search-hit.active')?.scrollIntoView({ block: 'center', inline: 'nearest' });
+  }, [hits]);
 
   function point(e: React.PointerEvent): Point {
     const rect = root.current!.getBoundingClientRect();
@@ -98,6 +127,7 @@ export function Page({ info, index, scale, tool, annotations, selected, editing,
     <div ref={root} className={`pdf-page tool-${tool}`} style={{ width: info.width * scale, height: info.height * scale }} onPointerDown={pointerDown} onPointerMove={pointerMove} onPointerUp={pointerUp} onPointerCancel={() => { gesture.current = null; setPreview(null); }}>
       <canvas ref={canvas} className="pdf-canvas" aria-label={`PDF page ${index + 1}`} />
       <div ref={textLayer} className="pdf-text-layer" />
+      <div className="search-highlights" aria-hidden="true" style={{ transform: `scale(${scale})` }}>{hits.map((hit, i) => <div key={i} className={`search-hit ${hit.active ? 'active' : ''}`} style={{ left: hit.x, top: hit.y, width: hit.width, height: hit.height }} />)}</div>
       <div className="annotation-layer" style={{ width: info.width, height: info.height, transform: `scale(${scale})` }}>
         {annotations.map(a => <AnnotationBox key={a.id} a={a} selected={selected === a.id} editing={editing === a.id} pageWidth={info.width} pageHeight={info.height} scale={scale} select={select} edit={edit} commit={commit} onTyping={onTyping} />)}
         {preview && <div style={{ position: 'absolute', left: preview.x, top: preview.y, width: preview.width, height: preview.height }}><AnnotationShape a={preview} /></div>}
@@ -213,6 +243,6 @@ export function Thumbnail({ info, index, active, count, onClick }: { info: PageI
   }, [info]);
   return <button ref={button} className={`thumbnail ${active ? 'active' : ''}`} onClick={onClick} aria-label={`Go to page ${index + 1}`} aria-current={active ? 'page' : undefined}>
     <div className="thumbnail-paper" style={{ aspectRatio: `${info.width}/${info.height}` }}><canvas ref={canvas} />{count > 0 && <span className="annotation-count">{count}</span>}</div>
-    <span className="thumbnail-label">{String(index + 1).padStart(2, '0')}<span>{active ? 'Viewing' : ''}</span></span>
+    <span className="thumbnail-label">{index + 1}</span>
   </button>;
 }

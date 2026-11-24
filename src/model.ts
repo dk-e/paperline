@@ -18,7 +18,7 @@ export type Annotation = {
   points?: Point[];
 };
 export type Draft = { bytes: Uint8Array; name: string; annotations: Annotation[]; updated: number };
-export const COLORS = ['#202737', '#3563e9', '#dc425e', '#15845f', '#9155cd', '#c18513'];
+export const COLORS = ['#202737', '#3563e9', '#dc425e', '#15845f', '#087e95', '#c18513'];
 export const HIGHLIGHTS = ['#ffe16a', '#a9e8cd', '#b9d6ff', '#f8b8d4'];
 export const fontStyle = (a: Pick<Annotation, 'bold' | 'italic'>): FontStyle => a.bold ? (a.italic ? 'boldItalic' : 'bold') : a.italic ? 'italic' : 'regular';
 export const clamp = (n: number, min: number, max: number) => Math.max(min, Math.min(max, n));

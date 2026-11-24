@@ -15,7 +15,7 @@ export function FormattingBar({ kind, properties, color, selected, update, dupli
     const size = sizeInput.trim() && Number.isFinite(Number(sizeInput)) ? clamp(Number(sizeInput), 6, 96) : properties.size ?? 14;
     update({ size }); setSizeInput(String(size));
   }
-  return <div className="formatting-bar" role="toolbar" aria-label={`${kind === 'text' ? 'Text' : kind === 'draw' ? 'Drawing' : 'Highlight'} formatting`}>
+  return <div className="formatting-bar glass" role="toolbar" aria-label={`${kind === 'text' ? 'Text' : kind === 'draw' ? 'Drawing' : 'Highlight'} formatting`}>
     {kind === 'text' && <>
       <span className="font-name">Noto Sans</span>
       <label className="size-input"><input aria-label="Font size" type="number" min={6} max={96} value={sizeInput} onChange={e => setSizeInput(e.target.value)} onBlur={applySize} onKeyDown={e => { if (e.key === 'Enter') e.currentTarget.blur(); }} /><span>pt</span></label>

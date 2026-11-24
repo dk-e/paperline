@@ -1,0 +1,106 @@
+:root {
+  color-scheme: light dark;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;
+  font-size: 13px;
+  font-synthesis: none;
+  -webkit-font-smoothing: antialiased;
+
+  --ink: #20242b;
+  --secondary: #4a5564;
+  --muted: #596675;
+  --accent: #005ebf;
+  --accent-tint: #007aff1c;
+  --canvas: #e6e9ef;
+  --ambient: #d7e8fc;
+  --window: #f3f5f8;
+  --glass: #ffffffa8;
+  --glass-strong: #f9fbfff0;
+  --rim: #ffffffcc;
+  --line: #17263d1c;
+  --hover: #172c4410;
+  --pressed: #172c441a;
+  --control: #ffffffbf;
+  --selected: #fffffff2;
+  --well: #1a2e480d;
+  --blue-top: #0d72dd;
+  --blue-bottom: #0060d2;
+  --blue-hover: #005ac4;
+  --positive: #24714d;
+  --warning: #925a15;
+  --critical: #b42d3d;
+  --critical-tint: #dc354514;
+  --scrim: #1e2b4040;
+  --scroll-thumb: #78869791;
+  --float-shadow: 0 1px 2px #20304d12, 0 9px 24px -7px #22334c32;
+  --window-shadow: 0 1px 3px #22334c1a, 0 21px 58px -17px #22334c42;
+  --paper-shadow: 0 0 0 1px #1b2b4118, 0 3px 9px #273d5714, 0 16px 38px -12px #2639533b;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --ink: #f0f2f5;
+    --secondary: #c7cdd6;
+    --muted: #b7c0ce;
+    --accent: #70b6ff;
+    --accent-tint: #4398fa2b;
+    --canvas: #202328;
+    --ambient: #27394e;
+    --window: #292c32;
+    --glass: #343942e3;
+    --glass-strong: #343941f5;
+    --rim: #ffffff1c;
+    --line: #ffffff19;
+    --hover: #e2eeff12;
+    --pressed: #e2eeff1b;
+    --control: #e2eeff0d;
+    --selected: #e2eeff1e;
+    --well: #0e141d45;
+    --blue-top: #1672d8;
+    --blue-bottom: #0860c7;
+    --blue-hover: #0866d3;
+    --positive: #87d5aa;
+    --warning: #e8b674;
+    --critical: #ff9da7;
+    --critical-tint: #ff687322;
+    --scrim: #080b107d;
+    --scroll-thumb: #9daabb6b;
+    --float-shadow: 0 1px 2px #0003, 0 12px 30px -8px #0007;
+    --window-shadow: 0 1px 4px #0004, 0 24px 60px -16px #000a;
+    --paper-shadow: 0 0 0 1px #0005, 0 5px 15px #0005, 0 18px 40px -12px #0009;
+  }
+}
+
+*, *::before, *::after { box-sizing: border-box; }
+
+body {
+  margin: 0;
+  background: var(--window);
+  color: var(--ink);
+  font: inherit;
+}
+
+button, input, select, textarea { font: inherit; }
+button, a, input, select, textarea, summary { -webkit-tap-highlight-color: transparent; }
+button, a, input, select, summary { outline-offset: 3px; }
+:focus-visible { outline: 2px solid var(--accent); }
+button { cursor: pointer; color: inherit; }
+button:disabled { cursor: default; }
+a { color: inherit; text-decoration: none; }
+kbd { font: inherit; }
+
+.glass {
+  background: var(--glass);
+  border: 1px solid var(--line);
+  box-shadow: inset 0 1px var(--rim), var(--float-shadow);
+  -webkit-backdrop-filter: blur(24px) saturate(155%);
+  backdrop-filter: blur(24px) saturate(155%);
+}
+
+@media (prefers-reduced-transparency: reduce) {
+  :root { --glass: var(--window); }
+  .glass { -webkit-backdrop-filter: none; backdrop-filter: none; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { scroll-behavior: auto !important; transition: none !important; }
+}
