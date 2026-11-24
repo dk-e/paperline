@@ -222,13 +222,13 @@ test('copies visible PDF text immediately after opening a Moodle link in a new t
   await expect(heading).toHaveCount(1);
   await heading.dblclick({ position: { x: 20, y: 15 } });
   await expect.poll(() => editor.evaluate(() => getSelection()?.toString())).toBe('Good');
-  await editor.keyboard.press('Control+c');
+  await editor.keyboard.press('ControlOrMeta+c');
   await editor.evaluate(() => {
     const input = document.createElement('textarea'); input.id = 'paste-check';
     input.style.cssText = 'position:fixed;top:60px;left:0;z-index:200';
     document.body.append(input); input.focus();
   });
-  await editor.keyboard.press('Control+v');
+  await editor.keyboard.press('ControlOrMeta+v');
   await expect(editor.locator('#paste-check')).toHaveValue('Good');
   await editor.close(); await page.close();
 });

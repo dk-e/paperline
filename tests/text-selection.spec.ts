@@ -45,7 +45,7 @@ async function selectText(index: number) {
 }
 
 async function assertCopied() {
-  await page.keyboard.press('Control+c');
+  await page.keyboard.press('ControlOrMeta+c');
   // Pasting into a real input checks native clipboard behavior without a
   // synthetic copy event or a clipboard permission grant.
   await page.evaluate(() => {
@@ -54,7 +54,7 @@ async function assertCopied() {
     input.style.cssText = 'position:fixed;top:60px;left:0;z-index:200';
     document.body.append(input); input.focus();
   });
-  await page.keyboard.press('Control+v');
+  await page.keyboard.press('ControlOrMeta+v');
   await expect(page.locator('#clipboard-check')).toHaveValue(text);
   await page.locator('#clipboard-check').evaluate(el => el.remove());
 }
@@ -113,13 +113,13 @@ test('selects visible sample text using page coordinates, including on a high-DP
     await tab.mouse.move(box.x + 58 + width - 0.5, box.y + 145, { steps: 25 });
     await tab.mouse.up();
     await expect.poll(() => tab.evaluate(() => getSelection()?.toString())).toBe('Good things start');
-    await tab.keyboard.press('Control+c');
+    await tab.keyboard.press('ControlOrMeta+c');
     await tab.evaluate(() => {
       const input = document.createElement('textarea'); input.id = 'paste';
       input.style.cssText = 'position:fixed;top:60px;left:0;z-index:200';
       document.body.append(input); input.focus();
     });
-    await tab.keyboard.press('Control+v');
+    await tab.keyboard.press('ControlOrMeta+v');
     await expect(tab.locator('#paste')).toHaveValue('Good things start');
   } finally { await display.close(); }
 });

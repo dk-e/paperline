@@ -6,11 +6,57 @@ await mkdir('public/icons', { recursive: true });
 for (const size of [16, 32, 48, 128]) {
   const canvas = createCanvas(size, size), ctx = canvas.getContext('2d');
   ctx.scale(size / 128, size / 128);
-  ctx.fillStyle = '#8d73d7'; ctx.beginPath(); ctx.roundRect(0, 0, 128, 128, 27); ctx.fill();
-  ctx.strokeStyle = '#fff'; ctx.lineWidth = 5; ctx.lineCap = 'round'; ctx.lineJoin = 'round';
-  ctx.beginPath(); ctx.moveTo(74, 26); ctx.lineTo(36, 26); ctx.lineTo(36, 102); ctx.lineTo(91, 102); ctx.lineTo(91, 45); ctx.closePath(); ctx.stroke();
-  ctx.beginPath(); ctx.moveTo(73, 27); ctx.lineTo(73, 46); ctx.lineTo(90, 46); ctx.stroke();
-  for (const [y, x] of [[63, 76], [77, 76], [90, 63]]) { ctx.beginPath(); ctx.moveTo(49, y); ctx.lineTo(x, y); ctx.stroke(); }
+  const blueGlass = ctx.createLinearGradient(16, 5, 110, 125);
+  blueGlass.addColorStop(0, '#62c2ff');
+  blueGlass.addColorStop(.46, '#2589f3');
+  blueGlass.addColorStop(1, '#0052c5');
+  ctx.fillStyle = blueGlass;
+  ctx.strokeStyle = '#ffffff60';
+  ctx.lineWidth = 2;
+  ctx.beginPath();
+  ctx.roundRect(3, 3, 122, 122, 29);
+  ctx.fill();
+  ctx.stroke();
+
+  ctx.fillStyle = '#00347632';
+  ctx.beginPath();
+  ctx.roundRect(30, 37, 54, 66, 8);
+  ctx.fill();
+
+  const paper = ctx.createLinearGradient(44, 25, 92, 100);
+  paper.addColorStop(0, '#ffffff');
+  paper.addColorStop(1, '#dcecfc');
+  ctx.fillStyle = paper;
+  ctx.beginPath();
+  ctx.moveTo(49, 24);
+  ctx.lineTo(77, 24);
+  ctx.lineTo(98, 45);
+  ctx.lineTo(98, 92);
+  ctx.quadraticCurveTo(98, 100, 90, 100);
+  ctx.lineTo(49, 100);
+  ctx.quadraticCurveTo(41, 100, 41, 92);
+  ctx.lineTo(41, 32);
+  ctx.quadraticCurveTo(41, 24, 49, 24);
+  ctx.fill();
+
+  ctx.strokeStyle = '#487bb37a';
+  ctx.lineWidth = 4;
+  ctx.lineJoin = 'round';
+  ctx.beginPath();
+  ctx.moveTo(77, 26);
+  ctx.lineTo(77, 45);
+  ctx.lineTo(96, 45);
+  ctx.stroke();
+
+  ctx.strokeStyle = '#176bcb';
+  ctx.lineWidth = 5;
+  ctx.lineCap = 'round';
+  for (const [y, endX] of [[61, 84], [73, 84], [85, 73]]) {
+    ctx.beginPath();
+    ctx.moveTo(55, y);
+    ctx.lineTo(endX, y);
+    ctx.stroke();
+  }
   await writeFile(`public/icons/icon-${size}.png`, canvas.toBuffer('image/png'));
 }
 if (process.argv.includes('--icons-only')) process.exit(0);

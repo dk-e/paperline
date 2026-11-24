@@ -28,13 +28,13 @@ test('the downloadable ZIP installs as paperline 1.4.0 and copies PDF text witho
     const heading = page.locator('.pdf-text-layer span').filter({ hasText: /^Good things start$/ });
     await heading.dblclick({ position: { x: 20, y: 15 } });
     await expect.poll(() => page.evaluate(() => getSelection()?.toString())).toBe('Good');
-    await page.keyboard.press('Control+c');
+    await page.keyboard.press('ControlOrMeta+c');
     await page.evaluate(() => {
       const input = document.createElement('textarea'); input.id = 'paste';
       input.style.cssText = 'position:fixed;top:60px;left:0;z-index:200';
       document.body.append(input); input.focus();
     });
-    await page.keyboard.press('Control+v');
+    await page.keyboard.press('ControlOrMeta+v');
     await expect(page.locator('#paste')).toHaveValue('Good');
   } finally {
     await context.close();

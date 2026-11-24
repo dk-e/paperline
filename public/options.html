@@ -1,15 +1,63 @@
 <!doctype html>
 <html lang="en">
-<head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Paperline settings</title><link rel="stylesheet" href="options.css"></head>
-<body><main>
-  <a class="brand" href="index.html"><img src="icons/icon-48.png" width="32" height="32" alt="">paperline<span>.</span></a>
-  <p class="eyebrow">MAKE YOURSELF AT HOME</p><h1>Your PDFs, straight to Paperline.</h1><p class="intro">Skip the extra step. Choose what opens in your editor.</p>
-  <section aria-label="Automatic opening">
-    <label class="setting"><span><strong>Open PDF links automatically</strong><small>PDFs open in a new tab, including links without a .pdf ending.</small></span><input id="autoOpenLinks" type="checkbox" role="switch"></label>
-    <label class="setting"><span><strong>Open completed PDF downloads</strong><small>Open the downloaded file in a new editor tab. Your download is kept.</small></span><input id="autoOpenDownloads" type="checkbox" role="switch"></label>
-  </section>
-  <section class="file-access"><div><span class="status-dot" id="file-status-dot"></span><strong id="file-status">Checking local file access…</strong></div><p>Chrome requires <b>Allow access to file URLs</b> to read downloaded PDFs or PDFs opened from your computer. Enable it on Paperline’s extension details page.</p><button id="extension-details">Open extension details <span>↗</span></button></section>
-  <section class="file-access"><div><span class="status-dot" id="setup-dot"></span><strong id="setup-state">Checking automatic PDF opening…</strong></div><p id="setup-detail"></p><button id="repair-auto-open">Enable & repair automatic opening</button></section>
-  <p class="note">Paperline’s own saved PDFs won’t open extra tabs. Ordinary web pages and other downloads are left alone.</p>
-  <p id="save-status" role="status" aria-live="polite"></p><a class="back-link" href="index.html">← Back to the editor</a>
-</main><script src="options.js"></script></body></html>
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Paperline Settings</title>
+  <link rel="icon" href="icons/icon-32.png">
+  <link rel="stylesheet" href="theme.css">
+  <link rel="stylesheet" href="options.css">
+</head>
+<body>
+  <main>
+    <header class="settings-header">
+      <img src="icons/icon-128.png" width="56" height="56" alt="">
+      <div>
+        <h1>Paperline Settings</h1>
+        <p class="intro">Choose how PDFs open in Paperline.</p>
+      </div>
+    </header>
+
+    <section aria-labelledby="automatic-opening">
+      <h2 id="automatic-opening">Automatic opening</h2>
+      <div class="settings-group glass">
+        <label class="setting">
+          <span><strong>Open PDF links automatically</strong><small>PDFs open in a new tab, including links without a .pdf ending.</small></span>
+          <input id="autoOpenLinks" type="checkbox" role="switch">
+        </label>
+        <label class="setting">
+          <span><strong>Open completed PDF downloads</strong><small>Open the downloaded file in a new editor tab. Your download is kept.</small></span>
+          <input id="autoOpenDownloads" type="checkbox" role="switch">
+        </label>
+      </div>
+      <p class="note">PDFs you save from Paperline stay in your downloads without opening another tab.</p>
+    </section>
+
+    <section aria-labelledby="permissions">
+      <h2 id="permissions">Permissions and setup</h2>
+      <div class="settings-group glass">
+        <div class="setting file-access">
+          <div>
+            <strong><span class="status-dot" id="file-status-dot"></span><span id="file-status">Checking local file access…</span></strong>
+            <p>Enable <b>Allow access to file URLs</b> in Chrome to open downloaded and local PDFs automatically.</p>
+          </div>
+          <button id="extension-details">Open extension details <span aria-hidden="true">↗</span></button>
+        </div>
+        <div class="setting file-access">
+          <div>
+            <strong><span class="status-dot" id="setup-dot"></span><span id="setup-state">Checking automatic PDF opening…</span></strong>
+            <p id="setup-detail"></p>
+          </div>
+          <button id="repair-auto-open">Enable &amp; repair automatic opening</button>
+        </div>
+      </div>
+    </section>
+
+    <footer>
+      <a class="back-link" href="index.html"><span aria-hidden="true">←</span> Back to the editor</a>
+      <p id="save-status" role="status" aria-live="polite"></p>
+    </footer>
+  </main>
+  <script src="options.js"></script>
+</body>
+</html>

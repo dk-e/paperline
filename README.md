@@ -14,8 +14,8 @@
 
   <p>
     <a href="https://github.com/dk-e/paperline/actions/workflows/ci.yml"><img src="https://github.com/dk-e/paperline/actions/workflows/ci.yml/badge.svg" alt="Build and test"></a>
-    <a href="https://github.com/dk-e/paperline/releases/latest"><img src="https://img.shields.io/github/v/release/dk-e/paperline?color=8d73d7" alt="Latest release"></a>
-    <img src="https://img.shields.io/badge/Chrome-128%2B-8d73d7" alt="Chrome 128 or later">
+    <a href="https://github.com/dk-e/paperline/releases/latest"><img src="https://img.shields.io/github/v/release/dk-e/paperline?color=0064d2" alt="Latest release"></a>
+    <img src="https://img.shields.io/badge/Chrome-128%2B-0064d2" alt="Chrome 128 or later">
   </p>
 </div>
 
@@ -25,11 +25,12 @@ paperline is a PDF viewer and annotation editor for Chrome. Your document gets t
 
 ## What you can do
 
+- **Find your place.** Search PDF text with **⌘/Ctrl + F**, step through highlighted results with Enter or Shift + Enter, and press Esc to return to reading. Search uses the PDF’s existing text layer; scanned pages require OCR from another tool.
 - **Read and copy naturally.** Drag across existing PDF text to select it, then copy with ⌘C / Ctrl+C or the right-click menu. No tool switch required.
 - **Add a finishing touch.** Create text boxes, highlight areas, draw, and adjust fonts, colours, and alignment.
 - **Keep your place.** PDF links open in a new editor tab, leaving the source page available. Signed-in Moodle PDF links keep their login context.
 - **Save your work.** Export a separate annotated PDF. Reopen it in paperline to keep editing your annotations.
-- **Pick up where you left off.** A local recovery draft remembers your latest document and edits.
+- **Pick up where you left off.** A local recovery draft remembers your latest document and edits. Before replacing unexported edits with another PDF, Paperline offers to save a copy. Deleting a draft can be undone until you leave the start screen.
 - **Stay on your device.** Rendering, editing, and export happen locally. Online PDFs are requested from their original website.
 
 ## Install
@@ -65,6 +66,7 @@ Drag across document text to select and copy it. Editing tools still allow text 
 | Draw | Press **D** and start drawing in a blank area. |
 | Select annotations | Press **V**. Arrow keys nudge a selected mark; Shift + arrows move it further. |
 | Undo / redo | **⌘/Ctrl + Z** / **⌘/Ctrl + Shift + Z** |
+| Find in PDF | **⌘/Ctrl + F**, then **Enter** / **Shift + Enter** for next / previous match. |
 | Save PDF | **⌘/Ctrl + S** downloads a separate `-edited.pdf`. |
 | Finish editing | Press **Esc**. |
 
